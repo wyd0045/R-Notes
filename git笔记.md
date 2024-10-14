@@ -264,3 +264,5 @@
 [Bilibili：Git工作流和核心原理 | GitHub基本操作 | VS Code里使用Git和关联GitHub](https://www.bilibili.com/video/BV1r3411F7kn/?spm_id_from=333.880.my_history.page.click&vd_source=b3328ecaea4c890b0870cbe5c6c5e30c)
 
 [菜鸟教程：Git 教程](https://www.runoob.com/git/git-basic-operations.html)
+
+[CSDN：小工具推荐：FastGithub的下载及使用](https://blog.csdn.net/qq_43554335/article/details/134066165)
