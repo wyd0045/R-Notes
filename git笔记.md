@@ -259,6 +259,8 @@
 
    合并是将两个或多个分支的提交历史合并为一个新的提交。在合并时，Git 会创建一个新的合并提交，将两个分支的修改合并在一起。合并提交将包含两个分支的修改，并且保留了每个分支的提交历史。合并通常用于将一个分支中的修改合并到另一个分支中，或者合并不同开发人员的工作。
 
+测试1
+
 # 参考网站
 
 [Bilibili：Git工作流和核心原理 | GitHub基本操作 | VS Code里使用Git和关联GitHub](https://www.bilibili.com/video/BV1r3411F7kn/?spm_id_from=333.880.my_history.page.click&vd_source=b3328ecaea4c890b0870cbe5c6c5e30c)
