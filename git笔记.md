@@ -251,6 +251,12 @@
 - `:w` （write）保存文件
 - `:q` （quit）退出编辑器
 
+# 在 Pycharm 中使用 Git
+
+## 准备工作
+
+1. 在 Pycharm 中关联本地 git.exe，具体操作为
+
 # 问题
 
 1. rebase（变基）和merge（合并）有什么区别？
