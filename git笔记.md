@@ -74,17 +74,25 @@
 
   - 当前所处的分支
   - 处于各状态的文件
+  
 - 查看历史提交记录
 
-```shell
-  git log
-```
+  ```shell
+   git log
+  ```
+
+- 查看本地分支
+
+  ```shell
+  git branch
+  ```
 
 - 查看当前仓库所有已跟踪文件
 
   ```shell
   git ls-files
   ```
+  
 - 查看当前本地仓库和哪些远程仓库有联系
 
   ```shell
@@ -92,6 +100,7 @@
   ```
 
   默认使用 `origin` 表示远程仓库，在 push 的时候可以使用 `origin` 代替远程仓库的 URL.
+  
 - 查看远程仓库和本地仓库的区别
 
   ```shell
@@ -105,6 +114,7 @@
   ```shell
   git add lao.md
   ```
+  
 - 提交暂存区到本地仓库。
 
   ```shell
@@ -122,36 +132,52 @@
   ```shell
   git commit -am "Commit message" # 将工作区的文件添加到暂存区并直接提交到本地仓库，同时将 Commit message 作为提交信息
   ```
-- 将文件从暂存区和工作区中删除
+  
+- 将文件从暂存区或工作区中删除
 
-```shell
-  git rm newfile.txt # 删除指定的文件，并将其添加到暂存区，等待下一次提交
-```
+  ```shell
+  git rm newfile.txt # 删除 newfile.txt，并将该文件从暂存区中移除（该删除操作会被放入暂存区中，等待下一次提交）
+  ```
 
-```shell
-  git rm --cached newfile.txt # 仅从仓库中移除文件，但不进行实际的物理删除
-```
+  ```shell
+  git rm --cached newfile.txt # 仅从暂存区中移除文件，但不进行实际的物理删除，而是将该文件修改为 Untracked 状态（该删除操作会被放入暂存区中，等待下一次提交）
+  ```
+
+  ```shell
+  git rm -r newfolder # 递归删除 newfolder文件夹下的所有文件，并将该文件夹从暂存区中移除（该删除操作会被放入暂存区中，等待下一次提交）
+  ```
 
 - 从远程仓库下载一个项目
 
   ```shell
   git clone
   ```
+
 - 将远程仓库更新到本地仓库
 
   ```shell
   git fetch
   ```
+
 - 将本地仓库的代码推送到远程仓库
 
   ```shell
   git push
   ```
+
 - 将远程仓库的代码合并到本地工作区
 
   ```shell
   git pull
   ```
+
+- 恢复或撤销文件的更改
+
+  ```shell
+  git restore # Git 2.23 版本引入
+  ```
+
+  
 
 ## 分支管理
 
@@ -255,3 +281,5 @@
 [菜鸟教程：Git 教程](https://www.runoob.com/git/git-basic-operations.html)
 
 [CSDN：小工具推荐：FastGithub的下载及使用](https://blog.csdn.net/qq_43554335/article/details/134066165)
+
+[简书：总结 下git rm --cached,git rm -r ,git -r --cached 三者的区别和容易混淆的地方](https://www.jianshu.com/p/39ed531505a3)
