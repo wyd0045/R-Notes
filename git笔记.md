@@ -74,25 +74,21 @@
 
   - 当前所处的分支
   - 处于各状态的文件
-  
 - 查看历史提交记录
 
   ```shell
    git log
   ```
-
 - 查看本地分支
 
   ```shell
   git branch
   ```
-
 - 查看当前仓库所有已跟踪文件
 
   ```shell
   git ls-files
   ```
-  
 - 查看当前本地仓库和哪些远程仓库有联系
 
   ```shell
@@ -100,7 +96,6 @@
   ```
 
   默认使用 `origin` 表示远程仓库，在 push 的时候可以使用 `origin` 代替远程仓库的 URL.
-  
 - 查看远程仓库和本地仓库的区别
 
   ```shell
@@ -114,7 +109,6 @@
   ```shell
   git add lao.md
   ```
-  
 - 提交暂存区到本地仓库。
 
   ```shell
@@ -132,7 +126,6 @@
   ```shell
   git commit -am "Commit message" # 将工作区的文件添加到暂存区并直接提交到本地仓库，同时将 Commit message 作为提交信息
   ```
-  
 - 将文件从暂存区或工作区中删除
 
   ```shell
@@ -146,38 +139,31 @@
   ```shell
   git rm -r newfolder # 递归删除 newfolder文件夹下的所有文件，并将该文件夹从暂存区中移除（该删除操作会被放入暂存区中，等待下一次提交）
   ```
-
 - 从远程仓库下载一个项目
 
   ```shell
   git clone
   ```
-
 - 将远程仓库更新到本地仓库
 
   ```shell
   git fetch
   ```
-
 - 将本地仓库的代码推送到远程仓库
 
   ```shell
   git push
   ```
-
 - 将远程仓库的代码合并到本地工作区
 
   ```shell
   git pull
   ```
-
 - 恢复或撤销文件的更改
 
   ```shell
   git restore # Git 2.23 版本引入
   ```
-
-  
 
 ## 分支管理
 
@@ -186,18 +172,25 @@
   ```shell
   git branch bad-boy # 新建名为 bad-boy 的新分支
   ```
+  
 - 切换分支
+
+  ```shell
+  git switch bad-boy # 切换到名为 bad-boy 的分支（Git 2.23 版本引入）
+  ```
 
   ```shell
   git checkout bad-boy # 切换到名为 bad-boy 的分支
   ```
-
+  
   切换分支时，Git 会用该分支最后一次提交的内容替换工作目录中的当前内容， 所以多个分支不需要多个目录。
+  
 - 创建并切换到新分支
 
   ```shell
   git checkout -b temp # 创建并切换到名为 temp 的新分支
   ```
+  
 - 删除分支
 
   ```shell
@@ -207,6 +200,7 @@
   ```shell
   git branch -D bad-boy # 删除未合并的分支 bad-boy
   ```
+  
 - 将别的分支合并到当前分支
 
   ```shell
@@ -261,7 +255,20 @@
 
 # 深入理解
 
-分支是指向提交（commit）的可移动指针。.git/refs/heads文件夹中的每一个文件表示一个本地分支，其内容是该分支最新一次提交（commit）的 Hash 值。
+- 分支是指向提交（commit）的可移动指针。.git/refs/heads文件夹中的每一个文件表示一个本地分支，其内容是该分支最新一次提交（commit）的 Hash 值。
+
+- HEAD
+
+  HEAD 是指向当前所在分支的指针，可通过 `git log` 或 `git branch` 查看。查看 .git 文件夹中的 HEAD 文件可以看到，文件内容如下。
+
+  ```
+  ref: refs/heads/main
+  ```
+
+- 切换分支时，git 都做了哪些事？
+  1. 将 HEAD 指向目标分支。
+  2. 使用和目标分支相对应的提交快照填充暂存区。
+  3. 将暂存区内容拷贝到工作目录。
 
 # 问题
 
@@ -272,7 +279,22 @@
    合并是将两个或多个分支的提交历史合并为一个新的提交。在合并时，Git 会创建一个新的合并提交，将两个分支的修改合并在一起。合并提交将包含两个分支的修改，并且保留了每个分支的提交历史。合并通常用于将一个分支中的修改合并到另一个分支中，或者合并不同开发人员的工作。
 2. git 的用户体系是怎样的？
 
-   本地似乎没有
+   git 本地似乎没有用户体系可言，只需要设置一个用户名和邮箱即可。权限校验都在连接远程仓库时进行。
+
+   ```shell
+   fatal: detected dubious ownership in repository at 'C:/Users/Administrator/Desktop/R-Notes'
+   'C:/Users/Administrator/Desktop/R-Notes' is owned by:
+           BUILTIN/Administrators (S-1-5-32-544)
+   but the current user is:
+           DESKTOP-QLP9SPN/Administrator (S-1-5-21-1101309422-1141911820-4091053739-500)
+   To add an exception for this directory, call:
+   
+           git config --global --add safe.directory C:/Users/Administrator/Desktop/R-Notes
+   ```
+
+   以上报错的原因是当前文件夹属于的用户与当前终端登录的用户不同，与 git 用户体系无关。解决方法：右键单击文件夹，在属性->安全->高级->所有者中将所有者修改为当前终端登录的用户（即 ESKTOP-QLP9SPN/Administrator）即可。
+   
+3. ![图片2测试](IMG/Snipaste_2024-10-15_16-43-16.png)
 
 # 参考网站
 
