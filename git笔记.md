@@ -54,13 +54,23 @@
   git config --global user.email "717086377@qq.com"
   ```
 
-## 创建 Git 仓库
+## 创建本地仓库
 
 - 创建 git 仓库
 
   ```shell
   git init
   ```
+  
+  ## 连接远程仓库
+  
+  - 将本地仓库连接到远程仓库
+  
+  ```shell
+  git remote add <shortname> <URL>
+  ```
+  
+  `<shortname>` 为连接名，`<URL>` 为远程仓库地址，远程仓库地址可以是 HTTPS URL 也可以是 SSH URL. 
 
 ## 查看
 
@@ -74,36 +84,47 @@
 
   - 当前所处的分支
   - 处于各状态的文件
+
 - 查看历史提交记录
 
   ```shell
   git log # 只展示当前所在分支上的所有提交
   ```
-  
+
   ```shell
   git log --all # 以逆时间序展示本地仓库中所有分支的提交
   ```
-- 查看本地分支
+
+- 查看分支
 
   ```shell
-  git branch
+  git branch # 查看本地分支
   ```
+
+  ```shell
+  git branch --all # 查看本地分支和远程跟踪分支
+  ```
+
 - 查看当前仓库所有已跟踪文件
 
   ```shell
   git ls-files
   ```
-- 查看当前本地仓库和哪些远程仓库有联系
 
-  ```shell
-  git remote -v
-  ```
-
-  默认使用 `origin` 表示远程仓库，在 push 的时候可以使用 `origin` 代替远程仓库的 URL.
 - 查看远程仓库和本地仓库的区别
 
   ```shell
   git diff origin/main # 查看名为 origin 的远程仓库的 main 分支与本地仓库当前分支的区别
+  ```
+
+- 查看本地仓库到远程仓库的连接
+
+  ```shell
+  git remote # 查看本地仓库到远程仓库所有连接的连接名
+  ```
+
+  ```shell
+  git remote -v # 查看本地仓库到远程仓库所有连接的连接名和URL
   ```
 
 ## 主要操作
@@ -135,8 +156,15 @@
 - 将本地仓库的代码推送到远程仓库
 
   ```shell
-  git push
+  git push <shortname> <branch_name>
   ```
+
+  ```shell
+  git push -u <shortname> <branch_name> # 推送并设定上游分支
+  ```
+
+
+​	`<shortname>` 为连接名，`<branch_name>` 为本地分支名。
 
 - 从远程仓库下载一个项目
 
@@ -191,10 +219,24 @@
   ```
 
   ```shell
+  git switch -c bad-boy # 创建并切换到名为 bad-boy 的分支（Git 2.23 版本引入）
+  ```
+  
+  ```shell
   git checkout bad-boy # 切换到名为 bad-boy 的分支
   ```
   
+  ```shell
+  git checkout -b bad-boy # 创建并切换到名为 bad-boy 的分支
+  ```
+  
+  ```shell
+  git checkout 09cf587 # 切换到 Hash 值为 09cf587 的提交
+  ```
+  
   切换分支时，Git 会用该分支最后一次提交的内容替换工作目录中的当前内容， 所以多个分支不需要多个目录。
+  
+  检出提交（checkout commit）时会进入 detached HEAD 状态，不推荐。
   
 - 创建并切换到新分支
 
@@ -266,7 +308,9 @@
 
 # 深入理解
 
-- 分支是指向提交（commit）的可移动指针。.git/refs/heads文件夹中的每一个文件表示一个本地分支，其内容是该分支最新一次提交（commit）的 Hash 值。
+- 分支
+
+  分支是指向提交（commit）的可移动指针。.git/refs/heads文件夹中的每一个文件表示一个本地分支，其内容是该分支最新一次提交（commit）的 Hash 值。
 
 - HEAD
 
@@ -294,6 +338,29 @@
   2. 三方合并（three-way merge）
 
   快进合并和三方合并的区别是，快进合并中源分支和目标分支其中一个是另一个的祖先，而三方合并则是两者有一个共同的祖先。
+
+- 远程仓库
+
+  本地仓库和远程仓库之间相互独立，两者的交互不会自动发生。
+
+  远程仓库按照惯例应该命名为 origin，一个本地仓库理论上可以有多个到远程仓库的连接，但不常见。
+
+- 远程分支
+
+  本地分支：在本地仓库中的分支。
+
+  远程分支：在远程仓库中的分支。
+
+  远程跟踪分支（remote-tracking branch）：在本地仓库中的对远程分支所指向的提交（commit）的一个引用。
+
+  上游分支（upstream branch）：在本地和远程分支之间建立的跟踪关系，上游分支是本地分支指向的远程分支。
+
+  在使用 `git pull/push` 命令时，如果上游分支已经设定，则不需要添加额外的参数。
+
+- 在执行 `git push` 命令时，git 都做了哪些事？
+
+  1. 在远程仓库中创建一个远程分支
+  2. 在本地仓库中创建一个远程跟踪分支
 
 # 问题
 
