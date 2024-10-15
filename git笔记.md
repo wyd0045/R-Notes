@@ -1,4 +1,4 @@
-# 核心原理
+# 核心概念
 
 ![图片1](https://www.runoob.com/wp-content/uploads/2015/02/git-command.jpg)
 
@@ -10,7 +10,7 @@
   - remote repository 远程仓库
 - 文件状态
 
-  - Untracked/Unstage 未跟踪
+  - Untracked 未跟踪
 
     新创建的文件最初是未跟踪的。它们存在于工作目录中，但没有被 Git 跟踪。
   - Tracked 已跟踪
@@ -62,7 +62,7 @@
   git init
   ```
 
-## 查看当前状态
+## 查看
 
 - 查看仓库当前状态
 
@@ -232,6 +232,10 @@
 ## 准备工作
 
 1. 在 Pycharm 中关联本地 git.exe，具体操作为
+
+# 深入理解
+
+分支是指向提交（commit）的可移动指针。.git/refs/heads文件夹中的每一个文件表示一个本地分支，其内容是该分支最新一次提交（commit）的 Hash 值。
 
 # 问题
 
