@@ -114,8 +114,14 @@
 - 查看远程仓库和本地仓库的区别
 
   ```shell
-  git diff origin/main # 查看名为 origin 的远程仓库的 main 分支与本地仓库当前分支的区别
+  git diff <branch1> # 查看分支 <branch1> 与当前分支的区别
   ```
+
+  ```shell
+  git diff <branch1> <branch2> # 查看分支 <branch1> 和 <branch2> 的区别
+  ```
+
+  `<branch1>` 和 `<branch1>` 均可以是远程跟踪分支。
 
 - 查看本地仓库到远程仓库的连接
 
@@ -172,17 +178,23 @@
   git clone
   ```
 
-- 将远程仓库更新到本地仓库
+- 将远程仓库提取到本地仓库
 
   ```shell
-  git fetch
+  git fetch # 创建或更新所有已连接的远程仓库的所有分支的远程跟踪分支
   ```
 
-- 将远程仓库的代码合并到本地工作区
+  ```shell
+  git fetch origin main # 创建或更新仓库 origin 的分支 main 的远程跟踪分支 origin/main
+  ```
+
+- 将远程仓库拉取到本地工作区
 
   ```shell
   git pull
   ```
+
+  `git pull` 命令的效果相当于 `git fetch` 加上 `git merge`.  
 
 - 将文件从暂存区或工作区中删除
 
@@ -211,7 +223,7 @@
   ```shell
   git branch bad-boy # 新建名为 bad-boy 的新分支
   ```
-  
+
 - 切换分支
 
   ```shell
@@ -221,44 +233,50 @@
   ```shell
   git switch -c bad-boy # 创建并切换到名为 bad-boy 的分支（Git 2.23 版本引入）
   ```
-  
+
   ```shell
   git checkout bad-boy # 切换到名为 bad-boy 的分支
   ```
-  
+
   ```shell
   git checkout -b bad-boy # 创建并切换到名为 bad-boy 的分支
   ```
-  
+
   ```shell
   git checkout 09cf587 # 切换到 Hash 值为 09cf587 的提交
   ```
-  
+
   切换分支时，Git 会用该分支最后一次提交的内容替换工作目录中的当前内容， 所以多个分支不需要多个目录。
-  
+
   检出提交（checkout commit）时会进入 detached HEAD 状态，不推荐。
-  
+
 - 创建并切换到新分支
 
   ```shell
   git checkout -b temp # 创建并切换到名为 temp 的新分支
   ```
-  
+
+  ```shell
+  git checkout -b totallyNotMain o/main # 创建并切换到名为 totallyNotMain 的新分支，使该分支跟踪远程分支 o/main
+  ```
+
 - 删除分支
 
   ```shell
-  git branch -d bad-boy # 删除名为 bad-boy 的分支
+  git branch -d bad-boy # 删除名为 bad-boy 的分支（如果有未提交的更改 git 会拒绝删除）
   ```
 
   ```shell
-  git branch -D bad-boy # 删除未合并的分支 bad-boy
+  git branch -D bad-boy # 强制删除未合并的分支 bad-boy
   ```
-  
-- 将别的分支合并到当前分支
+
+- 合并分支
 
   ```shell
-  git merge temp # 将名为 temp 的分支合并到当前分支
+  git merge <branch1> # 将分支 <branch1> 合并到当前分支
   ```
+
+  `<branch1>` 可以是本地分支，也可以是远程跟踪分支。
 
 ## 其他
 
@@ -267,11 +285,13 @@
   ```shell
   mkdir my-project
   ```
+
 - 进入文件夹
 
   ```shell
   cd my-project
   ```
+
 - 创建文件
 
   ```shell
@@ -281,15 +301,23 @@
   ```shell
   touch newfile.txt  # 创建一个新文件
   ```
+
 - 清空命令行
 
   ```shell
   clear
   ```
+
 - 使用 vim 编辑器编辑文件
 
   ```shell
   vim newfile.txt
+  ```
+
+- 查看目录的文件结构
+
+  ```shell
+  tree .git/refs # 查看目录 .git/refs 的文件结构
   ```
 
 ## vim 编辑器
@@ -353,14 +381,21 @@
 
   远程跟踪分支（remote-tracking branch）：在本地仓库中的对远程分支所指向的提交（commit）的一个引用。
 
-  上游分支（upstream branch）：在本地和远程分支之间建立的跟踪关系，上游分支是本地分支指向的远程分支。
+  上游分支（upstream branch）：本地分支指向的远程分支。上游分支可以和其对应的本地分支不同名，但通常应该保持同名。
 
   在使用 `git pull/push` 命令时，如果上游分支已经设定，则不需要添加额外的参数。
 
 - 在执行 `git push` 命令时，git 都做了哪些事？
 
-  1. 在远程仓库中创建一个远程分支
-  2. 在本地仓库中创建一个远程跟踪分支
+  1. 在远程仓库中创建或更新对应的远程分支。
+  2. 在本地仓库中创建或更新对应的远程跟踪分支。
+
+- 在执行 `git fetch` 命令时，git 都做了哪些事？
+
+  1. 查询当前连接的所有远程仓库。
+  2. 创建或更新所有已连接的远程仓库的所有分支对应的本地远程跟踪分支。
+
+  （ `git fetch` 命令可以指定想要创建或更新本地远程跟踪分支的远程仓库及分支）
 
 # 问题
 
@@ -385,7 +420,41 @@
            git config --global --add safe.directory C:/Users/Administrator/Desktop/R-Notes
    ```
 
-   以上报错的原因是当前文件夹属于的用户与当前终端登录的用户不同，与 git 用户体系无关。解决方法：右键单击文件夹，在属性->安全->高级->所有者中将所有者修改为当前终端登录的用户（即 ESKTOP-QLP9SPN/Administrator）即可。
+   以上报错的原因是当前文件夹属于的用户与当前终端登录的用户不同，与 git 用户体系无关。解决方法：右键单击文件夹，在属性 -> 安全 -> 高级 -> 所有者中将所有者修改为当前终端登录的用户（即 ESKTOP-QLP9SPN/Administrator）即可。
+
+3. GitHub 仓库的默认分支（default branch）有什么用？
+
+   执行 `git clone` 命令时，下载的是该仓库的默认分支。
+
+4. 设置 `git push` 命令不指定任何参数时的默认行为
+
+   ```shell
+   git config --global push.default <value>
+   ```
+
+   其中 `<value>` 的值可以为：
+
+   - nothing
+
+     必须显示指定想要推送到的远程分支，否则会拒绝 push 操作。
+
+   - matching
+
+     表示向所有与本地分支同名的远程分支推送。
+
+   - current
+
+     表示将当前分支推送到与其名称相同的远程分支。
+
+   - upstream
+
+     表示将当前分支推送到其上游分支。
+
+   - simple
+
+     simple 的效果与 upstream 相似，只是 simple 必须保证当前分支与其上游分支同名，否则会拒绝 push 操作。
+
+   在 Git 2.0 之前的版本中，`<value>` 的默认值为 matching，在 Git 2.0 之后的版本中，`<value>` 默认值为 simple. 
 
 # 参考网站
 
@@ -396,3 +465,10 @@
 [CSDN：小工具推荐：FastGithub的下载及使用](https://blog.csdn.net/qq_43554335/article/details/134066165)
 
 [简书：总结 下git rm --cached,git rm -r ,git -r --cached 三者的区别和容易混淆的地方](https://www.jianshu.com/p/39ed531505a3)
+
+[CSDN：Git查看本地分支和远程分支之间的关系](https://blog.csdn.net/weixin_51480428/article/details/141015661)
+
+[阿里云：细读 Git | 让你弄懂 origin、HEAD、FETCH_HEAD 相关内容](https://developer.aliyun.com/article/919354)
+
+[CSDN：git config --global push.default simple 的相关解读](https://blog.csdn.net/myself88129/article/details/132605504)
+
