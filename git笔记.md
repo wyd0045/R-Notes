@@ -426,7 +426,7 @@
 
    执行 `git clone` 命令时，下载的是该仓库的默认分支。
 
-4. 设置 `git push` 命令不指定任何参数时的默认行为
+4. 设置执行 `git push` 命令不指定任何参数时的默认行为
 
    ```shell
    git config --global push.default <value>
