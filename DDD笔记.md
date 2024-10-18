@@ -14,6 +14,54 @@
 
 <img src="IMG/DDD笔记/auto-orient,1.png" alt="1-strategic.png" style="zoom: 50%;" />
 
+- 战术设计
+
+  - 应用服务 xxxCommandService
+
+  - 资源库 xxxRepository
+
+    - xxxById() 根据 ID 获取聚合根，示例：
+
+      ```java
+      AppedQr appedQr = qrRepository.appedQrById(command.getQrId());
+      ```
+
+    - houseKeepSave() 将聚合根持久化到数据库，示例：
+
+      ```java
+      submissionRepository.houseKeepSave(submission, app);
+      ```
+
+  - 领域模型
+
+    - 聚合根 xxx
+
+    - 领域服务
+
+    - 工厂 xxxFactory
+
+      - createNewxxx() 创建聚合根对象，示例：
+
+        ```java
+        Submission submission = submissionFactory.createNewSubmission(
+                    answers,
+                    qr,
+                    page,
+                    app,
+                    permissions.getPermissions(),
+                    command.getReferenceData(),
+                    user
+            );
+        ```
+
+      工厂创建聚合根的过程不只是简单地调用聚合根的构造函数，它也是业务逻辑的一部分。因此工厂也属于领域模型的一部分，本质上工厂可以认为是一种特殊形式的领域服务。
+
+      每一个聚合根都有一个对应的工厂类用于创建聚合根的对象。
+
+    - 实体
+    - 值对象
+    - 领域事件
+
 - 成员已创建事件类
 
   ```java
@@ -76,40 +124,123 @@
 
 ## 5. 请求处理流程
 
+- 聚合根创建流程
+
+  聚合根的创建通常通过工厂类完成。
+
+  请求流经路线为：控制器(Controller) -> 应用服务(Application Service) -> 工厂(Factory) -> 资源库(Repository)。
+
+  ![img](IMG/DDD笔记/5-2.png)
+
+  Controller 的实现如下：
+
+  ```java
+  //SubmissionController
+  
+  @PostMapping
+  @ResponseStatus(CREATED)
+  public ReturnId newSubmission(@RequestBody @Valid NewSubmissionCommand command,
+                                @AuthenticationPrincipal User user) {
+      String submissionId = submissionCommandService.newSubmission(command, user);
+      return returnId(submissionId);
+  }
+  ```
+
+  - @ResponseStatus
+
+    该注解可以用在异常类或 Controller 类及其方法上，作用是设置 HTTP 响应的状态码。
+
+  - 命令对象 NewSubmissionCommand
+
+    命令对象是外部客户端传入的数据（类似于传统 MVC 架构中的 voParam），因此需要将其与领域模型解耦，也即命令对象不能进入到领域模型的内部，其所能到达的最后一站是应用服务。
+
 - 聚合根更新流程
+
+  对聚合根的更新流程通常可以通过“经典三部曲”完成：
+
+  1. 调用资源库获得聚合根
+  2. 调用聚合根上的业务方法，完成对聚合根的更新
+  3. 再次调用资源库保存聚合根
+
+  此时的请求流经路线为：控制器(Controller) -> 应用服务(Application Service) -> 资源库(Repository) -> 聚合根(Aggregate Root)。
 
   <img src="IMG/DDD笔记/5-3.png" alt="img"  />
 
-```java
-//SubmissionCommandService
+  应用服务的实现如下：
 
-@Transactional
-public void approveSubmission(String submissionId,
-                              ApproveSubmissionCommand command,
-                              User user) {
-    // 先通过资源库 SubmissionRepository 的 byIdAndCheckTenantShip() 方法获取到需要操作的 Submission
-    // 也许资源库中有和数据库交互的 DO，但是 DO 转化为聚合根的过程是在资源库中完成的
-    Submission submission = submissionRepository.byIdAndCheckTenantShip(submissionId, user);
+  ```java
+  //SubmissionCommandService
+  
+  @Transactional
+  public void approveSubmission(String submissionId,
+                                ApproveSubmissionCommand command,
+                                User user) {
+      // 先通过资源库 SubmissionRepository 的 byIdAndCheckTenantShip() 方法获取到需要操作的 Submission
+      // 也许资源库中有和数据库交互的 DO，但是 DO 转化为聚合根的过程是在资源库中完成的
+      Submission submission = submissionRepository.byIdAndCheckTenantShip(submissionId, user);
+  
+      App app = appRepository.cachedById(submission.getAppId());
+      Page page = app.pageById(submission.getPageId());
+      SubmissionPermissions permissions = permissionChecker.permissionsFor(user,
+              app,
+              submission.getGroupId());
+      permissions.checkCanApproveSubmission(submission, page, app);
+  
+      submission.approve(command.isPassed(),
+              command.getNote(),
+              page,DDD
+              user);
+  
+      submissionRepository.houseKeepSave(submission, app);
+  
+      log.info("Approved submission[{}].", submissionId);
+  }
+  ```
 
-    App app = appRepository.cachedById(submission.getAppId());
-    Page page = app.pageById(submission.getPageId());
-    SubmissionPermissions permissions = permissionChecker.permissionsFor(user,
-            app,
-            submission.getGroupId());
-    permissions.checkCanApproveSubmission(submission, page, app);
+  - 资源库返回的永远是聚合根
+  - `@Transactional` 注解加在应用服务类的方法上。
 
-    submission.approve(command.isPassed(),
-            command.getNote(),
-            page,
-            user);
+- 聚合根删除流程
 
-    submissionRepository.houseKeepSave(submission, app);
+  请求流经路线为：控制器(Controller) -> 应用服务(Application Service) -> 资源库(Application Service) -> 聚合根(Aggregate Root) 。
 
-    log.info("Approved submission[{}].", submissionId);
-}
-```
+  ![img](IMG/DDD笔记/5-5.png)
 
-## DDD 项目中使用 Lombok 的正确姿势
+
+
+## 6. 聚合根与资源库
+
+- 聚合根基类
+
+  在代码实现层面，一般的实践是将所有的聚合根都继承自一个公共基类`AggregateRoot`. 
+
+  - 多租户
+
+    三种实现方式：
+
+    - 独立数据库
+
+    - 共享数据库、独立Schema
+
+      每个租户共享同一个数据库，但使用的是不同的Schema. 像 Oracle 和 PgSql 都支持一个数据库下多个 Schema。而在 MySql 中，Schema 和数据库（Database）则是同义的。
+
+    - 共享数据库、共享Schema、共享表
+
+      每个租户共享同一个数据库，同一个Schema，甚至是同一张表。每个表里都有一个tenant_id字段用来区分表里的记录是来自于哪一个租户。
+
+    Schema的定义：
+
+    在数据库中，schema（模式）是数据库的组织和结构。模式中包含了 schema 对象，可以是表（table）、列（column）、数据类型（data type）、视图（view）、存储过程（stored procedures）、关系（relationships）、主键（primary key）、外键（foreign key）等。
+
+    - MySQL
+
+      MySQL 官方文档指出，从概念上讲，模式是一组相互关联的数据库对象，如表，表列，列的数据类型，索引，外键等等。但是从物理层面上来说，模式与数据库是同义的。你可以在MySQL的SQL语法中用关键字SCHEMA替代DATABASE，例如使用`CREATE SCHEMA`来代替`CREATE DATABASE`. 
+
+    - Oracle
+
+      Oracle官方文档指出，schema是数据或模式对象的逻辑结构的集合，由数据库用户拥有，并且与该用户具有相同的名称，也就是说每个用户拥有一个独立的schema。
+
+## 项目中使用 Lombok 的正确姿势
 
 - DDD 中，可能用到 Lombok 的概念有聚合根（Aggregate Root）、实体（Entity）和值对象（Value Object）等。
 
@@ -118,6 +249,11 @@ public void approveSubmission(String submissionId,
 - @Value
 
   `@Value` 注解是 `@Data` 的不可变版本，自动生成所有字段的 `getter()` 方法、`toString()` 方法、`equals()` 和 `hashCode()` 方法，以及一个全参数的构造函数，并将所有字段设为 `private` 和 `final`。
+
+## 问题
+
+1. 在 DDD 中，voParam 是否要改为 xxxCommand？
+2. xxxCommandService？
 
 ## 参考网站
 
