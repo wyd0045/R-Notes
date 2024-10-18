@@ -14,7 +14,7 @@
 
 <img src="IMG/DDD笔记/auto-orient,1.png" alt="1-strategic.png" style="zoom: 50%;" />
 
-- 成员已创建事件类 MemberCreatedEvent
+- 成员已创建事件类
 
   ```java
   @Getter
@@ -76,8 +76,49 @@
 
 ## 5. 请求处理流程
 
+- 聚合根更新流程
+
+  <img src="IMG/DDD笔记/5-3.png" alt="img"  />
+
+```java
+//SubmissionCommandService
+
+@Transactional
+public void approveSubmission(String submissionId,
+                              ApproveSubmissionCommand command,
+                              User user) {
+    // 先通过资源库 SubmissionRepository 的 byIdAndCheckTenantShip() 方法获取到需要操作的 Submission
+    // 也许资源库中有和数据库交互的 DO，但是 DO 转化为聚合根的过程是在资源库中完成的
+    Submission submission = submissionRepository.byIdAndCheckTenantShip(submissionId, user);
+
+    App app = appRepository.cachedById(submission.getAppId());
+    Page page = app.pageById(submission.getPageId());
+    SubmissionPermissions permissions = permissionChecker.permissionsFor(user,
+            app,
+            submission.getGroupId());
+    permissions.checkCanApproveSubmission(submission, page, app);
+
+    submission.approve(command.isPassed(),
+            command.getNote(),
+            page,
+            user);
+
+    submissionRepository.houseKeepSave(submission, app);
+
+    log.info("Approved submission[{}].", submissionId);
+}
+```
+
 ## DDD 项目中使用 Lombok 的正确姿势
 
 - DDD 中，可能用到 Lombok 的概念有聚合根（Aggregate Root）、实体（Entity）和值对象（Value Object）等。
 
 - 外部只能通过聚合根完成对其内部状态的改变，而不能直接操作聚合根内部的字段。
+
+- @Value
+
+  `@Value` 注解是 `@Data` 的不可变版本，自动生成所有字段的 `getter()` 方法、`toString()` 方法、`equals()` 和 `hashCode()` 方法，以及一个全参数的构造函数，并将所有字段设为 `private` 和 `final`。
+
+## 参考网站
+
+[Lombok 实战教程 - @Value | 轻松实现不可变类](https://blog.csdn.net/qq_33240556/article/details/139201231)
