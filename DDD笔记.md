@@ -11,31 +11,42 @@
 
 ## 2. DDD 概念大白话
 
-<img src="IMG/DDD笔记/auto-orient,1.png" alt="1-strategic.png" style="zoom: 50%;" />
+<img src="IMG/DDD笔记/2-1.png" alt="2-1.png" style="zoom: 50%;" />
 
 - 战术设计
 
   - 应用服务 xxxCommandService
+  
   - 资源库 xxxRepository
-
-    - xxxById() 根据 ID 获取聚合根，示例：
-
+  
+    - `byId()` 根据 ID 获取聚合根，示例：
+  
       ```java
       AppedQr appedQr = qrRepository.appedQrById(command.getQrId());
       ```
-    - houseKeepSave() 将聚合根持久化到数据库，示例：
 
+      需要注意的是，这里的查询方法指的是在实现业务逻辑的过程中需要做的查询操作，并不是为了前端显示那种纯粹的查询。因为纯粹的查询操作不见得一定要放到资源库中，而是可以作为一个单独的关注点通过CQRS解决。
+  
+    - `save()` 保存聚合根，示例：
+  
       ```java
       submissionRepository.houseKeepSave(submission, app);
       ```
+  
+      ```java
+      Optional<Group> byIdOptional(String id); // 根据 ID 查找分组，返回 Optional
+      ```
+  
+    - `delete()`  删除聚合根
+  
   - 领域模型
-
+  
     - 聚合根 xxx
     - 领域服务
     - 工厂 xxxFactory
-
+  
       - createNewxxx() 创建聚合根对象，示例：
-
+  
         ```java
         Submission submission = submissionFactory.createNewSubmission(
                     answers,
@@ -47,13 +58,14 @@
                     user
             );
         ```
-
+  
       工厂创建聚合根的过程不只是简单地调用聚合根的构造函数，它也是业务逻辑的一部分。因此工厂也属于领域模型的一部分，本质上工厂可以认为是一种特殊形式的领域服务。
-
+  
       每一个聚合根都有一个对应的工厂类用于创建聚合根的对象。
     - 实体
     - 值对象
     - 领域事件
+  
 - 成员已创建事件类
 
   ```java
@@ -62,12 +74,12 @@
   @NoArgsConstructor(access = PRIVATE)
   public class MemberCreatedEvent extends DomainEvent {
       private String memberId;
-
+  
       public MemberCreatedEvent(String memberId, User user) {
           super(MEMBER_CREATED, user); // 调用超类的构造方法
           this.memberId = memberId;
       }
-
+  
   } 
   ```
 
@@ -80,6 +92,7 @@
   - 如果使用 `super()` 来调用父类的构造方法必须写在子类构造方法的第一行。
   - 如果子类的构造方法中没有显示的调用父类的构造方法，则系统默认的调用父类的无参的构造方法。
   - 如果子类的构造方法中既没有显示调用父类的构造方法，而父类中又没有无参的构造方法，则编译出错。
+  
 - 实体对象与值对象的区别
 
   最直观的区别则是实体对象有 ID，而值对象没有 ID.
@@ -123,7 +136,7 @@
 
   ```java
   //SubmissionController
-
+  
   @PostMapping
   @ResponseStatus(CREATED)
   public ReturnId newSubmission(@RequestBody @Valid NewSubmissionCommand command,
@@ -155,7 +168,7 @@
 
   ```java
   //SubmissionCommandService
-
+  
   @Transactional
   public void approveSubmission(String submissionId,
                                 ApproveSubmissionCommand command,
@@ -163,21 +176,21 @@
       // 先通过资源库 SubmissionRepository 的 byIdAndCheckTenantShip() 方法获取到需要操作的 Submission
       // 也许资源库中有和数据库交互的 DO，但是 DO 转化为聚合根的过程是在资源库中完成的
       Submission submission = submissionRepository.byIdAndCheckTenantShip(submissionId, user);
-
+  
       App app = appRepository.cachedById(submission.getAppId());
       Page page = app.pageById(submission.getPageId());
       SubmissionPermissions permissions = permissionChecker.permissionsFor(user,
               app,
               submission.getGroupId());
       permissions.checkCanApproveSubmission(submission, page, app);
-
+  
       submission.approve(command.isPassed(),
               command.getNote(),
               page,DDD
               user);
-
+  
       submissionRepository.houseKeepSave(submission, app);
-
+  
       log.info("Approved submission[{}].", submissionId);
   }
   ```
@@ -197,7 +210,51 @@
   在代码实现层面，一般的实践是将所有的聚合根都继承自一个公共基类 `AggregateRoot`.
 
   - 多租户
+
 - 聚合根基本原则
+
+  - 内聚性原则
+  - 对外黑盒原则
+  - 不变条件原则
+  - 通过 ID 引用其他聚合根原则
+  - 与基础设施无关原则
+
+- 资源库
+
+  在 DDD 项目中，通常将资源库分为接口类和实现类，将接口类放置在领域模型 `domain` 包中，而将实现类放置在基础设施 `infrastructure` 包中，这种做法有两点好处：
+
+  1. 通过依赖反转，使得领域模型不依赖于基础设施
+  2. 实现资源库的可插拔性，比如未来需要从 MongoDB 迁移到 MySQL，那么只需创建新的实现类即可
+
+## 7. 实体与值对象
+
+<img src="IMG/DDD笔记/7-1.png" alt="img" style="zoom: 50%;" />
+
+- 唯一标识
+
+  在DDD中，所有的聚合根都是实体对象，但并不是所有的实体都是聚合根，不过从实践上来看，绝大多数的实体对象都是聚合根。因此，在DDD项目中最常见的情况是：作为实体对象的聚合根包含了大量的值对象。
+
+  对于聚合根而言，由于已经是领域模型中的顶层对象，其唯一标识应该是全局唯一的；而对于聚合根下的其他实体而言，由于其作用范围被限制在了聚合根内部，因此对应的唯一标识在聚合根下唯一即可。
+
+## 8. 应用服务与领域服务
+
+- 应用服务是领域模型的门面
+
+  应用服务是以业务用例为粒度接收外部请求的，也即应用服务类中的每一个 public 方法即对应一个业务用例。进而意味着应用服务也负责处理事务边界，使得对一个业务用例的处理要么全部成功，要么全部失败。对应到实际编码过程中，`@Tranactional`注解应该主要打到应用服务上。
+
+- 应用服务应该与框架无关
+
+## 9. 领域事件
+
+领域事件（Domain Event）中的“事件”即事件驱动架构（EDA, Event Driven Architecture）中的“事件”之意。
+
+<img src="IMG/DDD笔记/9-1.png" alt="9-1.png" style="zoom: 50%;" />
+
+
+
+## 10. CQRS
+
+
 
 ## 项目中使用 Lombok 的正确姿势
 
@@ -211,7 +268,10 @@
 
 1. 在 DDD 中，voParam 是否要改为 xxxCommand？
    不需要，要看具体的代码规范。
+
 2. xxxCommandService？
+
+   应用服务
 
 ## 参考网站
 
