@@ -1,5 +1,9 @@
 # Java 笔记
 
+## 多线程
+
+![image-20241024165509745](IMG/Java笔记/image-20241024165509745.png)
+
 ## 新特性
 
 ### Optional（Java 8）

@@ -260,9 +260,45 @@
 
 - DDD 中，可能用到 Lombok 的概念有聚合根（Aggregate Root）、实体（Entity）和值对象（Value Object）等。
 - 外部只能通过聚合根完成对其内部状态的改变，而不能直接操作聚合根内部的字段。
-- @Value
+- `@Value` 注解
 
   `@Value` 注解是 `@Data` 的不可变版本，自动生成所有字段的 `getter()` 方法、`toString()` 方法、`equals()` 和 `hashCode()` 方法，以及一个全参数的构造函数，并将所有字段设为 `private` 和 `final`。
+
+## DDD 最佳实践
+
+- 关于 book_id
+
+  - 数据库每个表都需要有 book_id 字段，实体类也需要有 。
+
+  - 查询接口的出参需要有 book_id 字段，其他接口的入参出参都不需要有。
+
+  - 聚合根为了包含实体类的所有字段，也需要包含 book_id，但是并不需要赋值，也没有实际意义。
+
+- 关于领域事件
+
+  - 一般在删除或更新操作时发布。非强制，按需发布。
+  - 事件内容保存在 DomainEventType 属性中，需要时更新 PMDomainEventType 枚举类。
+
+- 关于资源库的更新操作
+
+  - 只有一个 `save()` 方法用于持久化，不管是新增还是更新都调用这一个方法，在方法内部判断新增还是更新，示例：
+
+    ```java
+    // plantAgg --> newPlant
+    Plant newPlant = Plant.convertFrom(plantAgg);
+    
+    // 更新或新增plant
+    Plant plant = plantMapper.selectById(plantAgg.getId());
+    if (plant != null){
+    	// 更新
+    	plantMapper.updateById(newPlant);
+    } else {
+    	// 新增
+    	plantMapper.insert(newPlant);
+    }
+    ```
+
+  - 在更新操作时，要注意 `null` 和空字符串、空列表的区别。`null` 表示不更新该字段，空字符串、空列表表示将该字段内容删除。
 
 ## 问题
 
