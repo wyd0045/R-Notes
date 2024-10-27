@@ -18,7 +18,7 @@
 
 ### 1.2 常用函数和指令
 
-`install.package() `安装程序包
+`install.package() `安装程序包（需要以管理员身份运行 RStudio）
 
 ```R
 install.packages("BiocManager")
@@ -431,6 +431,14 @@ GRanges Extends: Class "Ranges", by class "GenomicRanges", distance 2
 [简书：maftools画棒棒糖图 （Lollipop chart）-基因突变可视化](https://www.jianshu.com/p/7c9dd33deda3)
 
 [知乎：maftools癌症体细胞变异(突变)分析工具学习](https://zhuanlan.zhihu.com/p/717782250)
+
+[腾讯云：MAF格式（mutation annotation format）](https://cloud.tencent.com/developer/article/2116172)
+
+[GDC官网：GDC MAF Format v.1.0.0](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)
+
+[CSDN：VCF文件](https://blog.csdn.net/pumc_2023/article/details/142885259)
+
+[腾讯云：图文详解 VCF 生信格式 (变异信息)](https://cloud.tencent.com/developer/article/2356764)
 
 ## 实用工具
 
