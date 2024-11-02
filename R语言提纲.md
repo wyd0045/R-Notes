@@ -18,10 +18,10 @@
 
 ### 1.2 常用函数和指令
 
-`install.package() `安装程序包
+`install.package() `安装程序包（需要以管理员身份运行 RStudio）
 
 ```R
-install.package("BiocManager")
+install.packages("BiocManager")
 BiocManager::install(c("trackViewer"))
 ```
 
@@ -406,25 +406,39 @@ GRanges Extends: Class "Ranges", by class "GenomicRanges", distance 2
 
 ## 参考网站
 
-[R语言教程](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/index.html)
+[北京大学：R语言教程](https://www.math.pku.edu.cn/teachers/lidf/docs/Rbook/html/_Rbook/index.html)
 
-[哈佛大学 R语言编程入门2024|CS50R Introduction to Programming with R](https://www.bilibili.com/video/BV1Vw4m1e75r/?p=2&spm_id_from=pageDriver&vd_source=b3328ecaea4c890b0870cbe5c6c5e30c)
+[Bilibili：哈佛大学 R语言编程入门2024|CS50R Introduction to Programming with R](https://www.bilibili.com/video/BV1Vw4m1e75r/?p=2&spm_id_from=pageDriver&vd_source=b3328ecaea4c890b0870cbe5c6c5e30c)
 
-[有了这个R包再也不用PPT绘制基因结构和变异位置](https://mp.weixin.qq.com/s/bcUphx5t01zk1oSpQWNK4A)
+[微信小程序科研七点半：有了这个R包再也不用PPT绘制基因结构和变异位置](https://mp.weixin.qq.com/s/bcUphx5t01zk1oSpQWNK4A)
 
 - GRange
 
-[IRanges包学习笔记](https://zhuanlan.zhihu.com/p/384853636)
+[知乎：IRanges包学习笔记](https://zhuanlan.zhihu.com/p/384853636)
 
-[bioconductor入门第二弹--GRanges概述](https://www.jianshu.com/p/4ea1ac971517)
+[简书：bioconductor入门第二弹--GRanges概述](https://www.jianshu.com/p/4ea1ac971517)
 
-[【必学Bioconductor包300个】GenomicRanges](https://www.jianshu.com/p/addde37b7b48)
+[简书：【必学Bioconductor包300个】GenomicRanges](https://www.jianshu.com/p/addde37b7b48)
 
 [Bioconductor官网：GenomicRanges](https://bioconductor.org/packages/release/bioc/html/GenomicRanges.html)
 
 - Rle
 
-[R/BioC序列处理之五：Rle和Ranges](https://www.plob.org/article/7594.html)
+[PLoB：R/BioC序列处理之五：Rle和Ranges](https://www.plob.org/article/7594.html)
+
+- maftools
+
+[简书：maftools画棒棒糖图 （Lollipop chart）-基因突变可视化](https://www.jianshu.com/p/7c9dd33deda3)
+
+[知乎：maftools癌症体细胞变异(突变)分析工具学习](https://zhuanlan.zhihu.com/p/717782250)
+
+[腾讯云：MAF格式（mutation annotation format）](https://cloud.tencent.com/developer/article/2116172)
+
+[GDC官网：GDC MAF Format v.1.0.0](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/)
+
+[CSDN：VCF文件](https://blog.csdn.net/pumc_2023/article/details/142885259)
+
+[腾讯云：图文详解 VCF 生信格式 (变异信息)](https://cloud.tencent.com/developer/article/2356764)
 
 ## 实用工具
 
